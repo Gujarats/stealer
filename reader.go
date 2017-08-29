@@ -24,7 +24,7 @@ func findData(access string, data []byte) map[string][]string {
 	result := make(map[string][]string)
 	function := []byte(`function`)
 	lenAccess := len(access)
-firstLoop:
+
 	for i := 0; i < len(data); {
 		varIndex := bytes.Index(data[i:], []byte(access))
 		if varIndex > -1 {
@@ -52,18 +52,16 @@ firstLoop:
 					// looop to get all the array
 					varEndIndex := bytes.Index(data[i:], []byte(`;`))
 					varEndIndex = i + varEndIndex
-				LoopValue:
 					for {
 						//getting all the values from array
 						sep := []byte(`'`)
 						firstSep := bytes.Index(data[i:], sep)
 						if firstSep == -1 {
-							break firstLoop
-							break LoopValue
+							break
 						}
 						if firstSep+i >= varEndIndex {
 							i = varEndIndex + 1
-							break LoopValue
+							break
 						} else {
 
 							i = i + firstSep + 1
