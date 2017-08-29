@@ -19,11 +19,11 @@ func GetVariablesValue(datas []byte) map[string]interface{} {
 }
 
 // get all the values from a variable with specific access from the data.
+// this acces can be private, protected or public.
 func findData(access string, data []byte) map[string][]string {
 	result := make(map[string][]string)
 	function := []byte(`function`)
 	lenAccess := len(access)
-	//lenFunc := len(function)
 firstLoop:
 	for i := 0; i < len(data); {
 		varIndex := bytes.Index(data[i:], []byte(access))
@@ -54,7 +54,6 @@ firstLoop:
 					varEndIndex = i + varEndIndex
 				LoopValue:
 					for {
-
 						//getting all the values from array
 						sep := []byte(`'`)
 						firstSep := bytes.Index(data[i:], sep)
@@ -83,6 +82,8 @@ firstLoop:
 				}
 			}
 
+		} else {
+			break
 		}
 
 	}

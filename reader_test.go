@@ -38,6 +38,7 @@ func TestFindData(t *testing.T) {
 		data     []byte
 		expected []string
 	}{
+		// Test 0
 		{
 			access: "private",
 			data: []byte(`
@@ -62,6 +63,60 @@ func TestFindData(t *testing.T) {
 				private static $last_name_static = array('Abrahams','Santanas','Wijayas');
 			`),
 			expected: []string{"andy", "clara", "john", "Abrahams", "Santanas", "Wijayas"},
+		},
+
+		// Test 1
+		{
+			access: "protected",
+			data: []byte(`
+
+				public function __construct(){
+					
+				}
+
+				private function someFunctionHere(){
+					return 1;
+				}
+
+				public function publicFunctionHere(){
+					return 1;
+				}
+
+				private $persons = array('andy','clara','john');
+				private $static persons_static = array("andys","claras","johns");
+				public $animals = array("lion","wolf","tiger");
+				public $static animals_static = array("lions","wolfs","tigers");
+				protected $last_name= array('Abraham','Santana','Wijaya');
+				private static $last_name_static = array('Abrahams','Santanas','Wijayas');
+			`),
+			expected: []string{"Abraham", "Santana", "Wijaya"},
+		},
+
+		// Test 2
+		{
+			access: "public",
+			data: []byte(`
+
+				public function __construct(){
+					
+				}
+
+				private function someFunctionHere(){
+					return 1;
+				}
+
+				public function publicFunctionHere(){
+					return 1;
+				}
+
+				private $persons = array('andy','clara','john');
+				private $static persons_static = array("andys","claras","johns");
+				public $animals = array("lion","wolf","tiger");
+				public $static animals_static = array("lions","wolfs","tigers");
+				protected $last_name= array('Abraham','Santana','Wijaya');
+				private static $last_name_static = array('Abrahams','Santanas','Wijayas');
+			`),
+			expected: []string{"lion", "wolf", "tiger", "lions", "wolfs", "tigers"},
 		},
 	}
 
