@@ -19,14 +19,13 @@ func GetVariablesValue(datas []byte) map[string]interface{} {
 }
 
 // get all the values from a variable with specific access from the data.
-func findData(access string, data []byte) map[string][]interface{} {
-	result := make(map[string][]interface{})
+func findData(access string, data []byte) map[string][]string {
+	result := make(map[string][]string)
 	function := []byte(`function`)
 	lenAccess := len(access)
 	//lenFunc := len(function)
 firstLoop:
 	for i := 0; i < len(data); {
-		fmt.Println("masuk = ", i)
 		varIndex := bytes.Index(data[i:], []byte(access))
 		if varIndex > -1 {
 			i = i + varIndex + lenAccess
@@ -61,6 +60,7 @@ firstLoop:
 						firstSep := bytes.Index(data[i:], sep)
 						if firstSep == -1 {
 							break firstLoop
+							break LoopValue
 						}
 						if firstSep+i >= varEndIndex {
 							i = varEndIndex + 1
@@ -72,11 +72,8 @@ firstLoop:
 							secondSep := bytes.Index(data[i:], sep)
 							i = i + secondSep
 							secondSep = i
-							fmt.Println("first sep = ", firstSep)
-							fmt.Println("second sep = ", secondSep)
 							value := data[firstSep:secondSep]
 							if string(value) != "" {
-								fmt.Println("name - ", string(value))
 								result[string(varName)] = append(result[string(varName)], string(value))
 							}
 							i = i + 2
@@ -89,8 +86,6 @@ firstLoop:
 		}
 
 	}
-	fmt.Printf("result exit loop = %+v\n", result)
-
 	return result
 }
 

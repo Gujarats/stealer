@@ -36,7 +36,7 @@ func TestFindData(t *testing.T) {
 	testObjects := []struct {
 		access   string
 		data     []byte
-		expected []interface{}
+		expected []string
 	}{
 		{
 			access: "private",
@@ -61,7 +61,7 @@ func TestFindData(t *testing.T) {
 				protected $last_name= array('Abraham','Santana','Wijaya');
 				private static $last_name_static = array('Abrahams','Santanas','Wijayas');
 			`),
-			expected: []interface{}{[]string{"andys", "claras", "johns"}, []string{"andy", "clara", "john"}},
+			expected: []string{"andy", "clara", "john", "Abrahams", "Santanas", "Wijayas"},
 		},
 	}
 
@@ -71,11 +71,11 @@ func TestFindData(t *testing.T) {
 		for _, actualValues := range actual {
 			for _, actualValue := range actualValues {
 				if testObject.expected[index] != actualValue {
-					t.Errorf("actual = %v, expected = %v", actualValue, testObject.expected)
+					t.Errorf("actual = %v, expected = %v", actualValue, testObject.expected[index])
 				}
+				index++
 
 			}
-			index++
 		}
 	}
 }
