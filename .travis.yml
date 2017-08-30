@@ -3,3 +3,6 @@ language : go
 go : 
     - 1.9.x
     - master
+notifications:
+    on_success: never # default: change
+    on_failure: always # default: always
