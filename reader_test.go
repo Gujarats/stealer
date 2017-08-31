@@ -56,9 +56,9 @@ func TestFindData(t *testing.T) {
 				}
 
 				private $persons = array('andy','clara','john');
-				private $static persons_static = array("andys","claras","johns");
+				private static $persons_static = array("andys","claras","johns");
 				public $animals = array("lion","wolf","tiger");
-				public $static animals_static = array("lions","wolfs","tigers");
+				public static $animals_static = array("lions","wolfs","tigers");
 				protected $last_name= array('Abraham','Santana','Wijaya');
 				private static $last_name_static = array('Abrahams','Santanas','Wijayas');
 			`),
@@ -83,9 +83,9 @@ func TestFindData(t *testing.T) {
 				}
 
 				private $persons = array('andy','clara','john');
-				private $static persons_static = array("andys","claras","johns");
+				private static $persons_static = array("andys","claras","johns");
 				public $animals = array("lion","wolf","tiger");
-				public $static animals_static = array("lions","wolfs","tigers");
+				public static $animals_static = array("lions","wolfs","tigers");
 				protected $last_name= array('Abraham','Santana','Wijaya');
 				private static $last_name_static = array('Abrahams','Santanas','Wijayas');
 			`),
@@ -110,9 +110,9 @@ func TestFindData(t *testing.T) {
 				}
 
 				private $persons = array('andy','clara','john');
-				private $static persons_static = array("andys","claras","johns");
+				private static $persons_static = array("andys","claras","johns");
 				public $animals = array("lion","wolf","tiger");
-				public $static animals_static = array("lions","wolfs","tigers");
+				public static $animals_static = array("lions","wolfs","tigers");
 				protected $last_name= array('Abraham','Santana','Wijaya');
 				private static $last_name_static = array('Abrahams','Santanas','Wijayas');
 			`),
@@ -133,4 +133,63 @@ func TestFindData(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestGetValues(t *testing.T) {
+	testObjects := []struct {
+		index        int
+		idxSemiColon int
+		data         []byte
+		expected     []string
+	}{
+		//Test 0
+		{
+			index:    0,
+			data:     []byte(`private static $myVariable = array("data1","data2","data3");`),
+			expected: []string{"data1", "data2", "data3"},
+		},
+
+		//Test 1
+		{
+			index:    0,
+			data:     []byte(`private static $myVariable = array('one','two','three','four');`),
+			expected: []string{"one", "two", "three", "four"},
+		},
+
+		//Test 2
+		{
+			index:    20,
+			data:     []byte(`private static $myVariable = array('one','two','three','four');`),
+			expected: []string{"one", "two", "three", "four"},
+		},
+	}
+
+	for indexTest, testObject := range testObjects {
+		_, actualValues := getValues(testObject.index, len(testObject.data)-1, testObject.data)
+		ok := isSliceEqual(testObject.expected, actualValues)
+		if !ok {
+			t.Errorf("index test = %v, expected = %+v\n, actual = %+v\n", indexTest, testObject.expected, actualValues)
+		}
+	}
+}
+
+func isSliceEqual(a, b []string) bool {
+	if a == nil && b != nil {
+		return false
+	}
+
+	if a != nil && b == nil {
+		return false
+	}
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := 0; i < len(a); i++ {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
 }
