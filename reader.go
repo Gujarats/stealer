@@ -26,6 +26,28 @@ func GetVariablesValues(datas []byte) map[string][]string {
 	return result
 }
 
+// Read file and return its content.
+func GetData(filepath string) []byte {
+	file, err := os.OpenFile(filepath, os.O_RDONLY, 0777)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fileInfo, err := file.Stat()
+	size := fileInfo.Size()
+	datas := make([]byte, size)
+
+	n, err := file.Read(datas)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if n == 0 {
+		log.Fatalln(errors.New("Empty selected file"))
+	}
+
+	return datas
+}
+
 // Get all the values from a variable with specific access from the data.
 // This acces can be private, protected or public.
 func findData(access string, data []byte) map[string][]string {
@@ -131,28 +153,6 @@ func getValues(i, idxSemiColon int, data []byte) (int, []string) {
 	}
 
 	return finalResult.Index, finalResult.Values
-}
-
-// Read file and return its content.
-func getData(filepath string) []byte {
-	file, err := os.OpenFile(filepath, os.O_RDONLY, 0777)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	fileInfo, err := file.Stat()
-	size := fileInfo.Size()
-	datas := make([]byte, size)
-
-	n, err := file.Read(datas)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	if n == 0 {
-		log.Fatalln(errors.New("Empty selected file"))
-	}
-
-	return datas
 }
 
 // Remove white space from string the fastest way
