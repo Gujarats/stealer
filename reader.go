@@ -3,7 +3,6 @@ package stealer
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -102,7 +101,6 @@ func getValues(i, idxSemiColon int, data []byte) (int, []string) {
 	values := make(chan storage, len(quotes))
 
 	for _, quote := range quotes {
-		fmt.Println("quote = ", string(quote.([]byte)))
 		wg.Add(1)
 		go func(i, idxSemiColon int, quote []byte, data []byte) {
 			defer wg.Done()
@@ -130,6 +128,7 @@ func getValues(i, idxSemiColon int, data []byte) (int, []string) {
 				result = append(result, string(value))
 				i = i + 2
 			}
+			objectResult := storage{Index: i, Values: result}
 			values <- objectResult
 		}(i, idxSemiColon, quote.([]byte), data)
 	}
@@ -137,9 +136,14 @@ func getValues(i, idxSemiColon int, data []byte) (int, []string) {
 	wg.Wait()
 
 	close(values)
-	finalresult := <-values
+	var finalResult storage
+	for value := range values {
+		if value.Index != 0 && value.Values != nil {
+			finalResult = value
+		}
+	}
 
-	return finalresult.Index, finalresult.Values
+	return finalResult.Index, finalResult.Values
 }
 
 func getData(filepath string) []byte {

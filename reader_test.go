@@ -143,6 +143,7 @@ func TestGetValues(t *testing.T) {
 		expected     []string
 	}{
 		//Test 0
+		// TODO :  this test case still fail
 		{
 			index:    0,
 			data:     []byte(`private static $myVariable = array("data1","data2","data3");`),
