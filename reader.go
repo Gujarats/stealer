@@ -52,31 +52,9 @@ func findData(access string, data []byte) map[string][]string {
 					// looop to get all the array
 					varEndIndex := bytes.Index(data[i:], []byte(`;`))
 					varEndIndex = i + varEndIndex
-					for {
-						//getting all the values from array
-						sep := []byte(`'`)
-						firstSep := bytes.Index(data[i:], sep)
-						if firstSep == -1 {
-							break
-						}
-						if firstSep+i >= varEndIndex {
-							i = varEndIndex + 1
-							break
-						} else {
-
-							i = i + firstSep + 1
-							firstSep = i
-							secondSep := bytes.Index(data[i:], sep)
-							i = i + secondSep
-							secondSep = i
-							value := data[firstSep:secondSep]
-							if string(value) != "" {
-								result[string(varName)] = append(result[string(varName)], string(value))
-							}
-							i = i + 2
-						}
-					}
-
+					index, values := getValues(i, varEndIndex, data)
+					result[string(varName)] = values
+					i = index
 				}
 			}
 
