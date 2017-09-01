@@ -5,34 +5,59 @@ import (
 	"testing"
 )
 
-//func TestGetVariablesValue(t *testing.T) {
-//	testObjects := []struct {
-//		Datas    []byte
-//		Expected []interface{}
-//	}{
-//		{
-//			Datas: []byte(`class php extend something {
-//				private static somevarible = "here";
-//				protected static persons = array('andy','budy','yudi');
-//			}`),
-//			Expected: []interface{}{"here", []string{"andy", "budy", "yudi"}},
-//		},
-//	}
-//
-//	for _, testObject := range testObjects {
-//		result := GetVariablesValue(testObject.Datas)
-//		index := 0
-//		for _, value := range result {
-//			fmt.Println(testObject.Expected[1], index, value)
-//
-//			if testObject.Expected[index] != value {
-//				t.Errorf("expected = %+v, actual = %+v\n", testObject.Expected[index], value)
-//			}
-//			index++
-//		}
-//	}
-//}
+// Test if we have the all the variables name in the map key
+func TestGetVariablesValue(t *testing.T) {
+	testObjects := []struct {
+		Datas        []byte
+		ExpectedKeys []string
+	}{
+		// Test 0
+		{
+			Datas: []byte(`class php extend something {
+				protected static $persons = array('andy','budy','yudi');
+			}`),
+			ExpectedKeys: []string{"persons"},
+		},
 
+		// Test 1
+		{
+			Datas: []byte(`
+
+				public function __construct(){
+					
+				}
+
+				private function someFunctionHere(){
+					return 1;
+				}
+
+				public function publicFunctionHere(){
+					return 1;
+				}
+
+				private $persons = array('andy','clara','john');
+				private static $persons_static = array("andys","claras","johns");
+				public $animals = array("lion","wolf","tiger");
+				public static $animals_static = array("lions","wolfs","tigers");
+				protected $last_name= array('Abraham','Santana','Wijaya');
+				private static $last_name_static = array('Abrahams','Santanas','Wijayas');
+			`),
+			ExpectedKeys: []string{"persons", "persons_static", "animals", "animals_static", "last_name", "last_name_static"},
+		},
+	}
+
+	for indexTest, testObject := range testObjects {
+		result := GetVariablesValues(testObject.Datas)
+		for key, _ := range result {
+			exist := isValueExistArray(key, testObject.ExpectedKeys)
+			if !exist {
+				t.Errorf("index = %v, key = %v is not exist in expected keys =%+v\n", indexTest, key, testObject.ExpectedKeys)
+			}
+		}
+	}
+}
+
+// Test if we have collected all correct values form each of variable
 func TestFindData(t *testing.T) {
 	testObjects := []struct {
 		access   string
@@ -191,7 +216,7 @@ func isSliceEqual(a, b []string) bool {
 	return true
 }
 
-// checking if value a is exit in b
+// checking if value a is exit in b map
 func isValueExist(a string, b map[string][]string) bool {
 	exist := false
 mapLoop:
@@ -203,6 +228,18 @@ mapLoop:
 				break valuesLoop
 				break mapLoop
 			}
+		}
+	}
+	return exist
+}
+
+// checking if value a is exit in b array
+func isValueExistArray(a string, b []string) bool {
+	exist := false
+	for _, value := range b {
+		if value == a {
+			exist = true
+			break
 		}
 	}
 	return exist

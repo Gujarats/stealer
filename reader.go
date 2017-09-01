@@ -5,21 +5,29 @@ import (
 	"errors"
 	"log"
 	"os"
+	"strings"
 	"sync"
+	"unicode"
 )
 
-// checking if the variable has prefix (protected,private,public)
-// and get the values from it
-func GetVariablesValue(datas []byte) map[string]interface{} {
-	result := make(map[string]interface{})
-	//access := []string{"private", "protected", "public"}
-	result["test"] = []interface{}{"hoho", []string{"hello", "world"}}
+// Getting all the variables values that has prefix (protected,private,public)
+// Return map with the key for variable name and []string for all the values from the variable
+func GetVariablesValues(datas []byte) map[string][]string {
+	result := make(map[string][]string)
+	accessKeys := []string{"private", "protected", "public"}
+	for _, access := range accessKeys {
+		datas := findData(access, datas)
+		// adding map datas to result
+		for key, value := range datas {
+			result[key] = value
+		}
+	}
 
 	return result
 }
 
-// get all the values from a variable with specific access from the data.
-// this acces can be private, protected or public.
+// Get all the values from a variable with specific access from the data.
+// This acces can be private, protected or public.
 func findData(access string, data []byte) map[string][]string {
 	result := make(map[string][]string)
 	function := []byte(`function`)
@@ -43,7 +51,8 @@ func findData(access string, data []byte) map[string][]string {
 				idxDollar := bytes.Index(data[i:], dollar)
 				i = i + idxDollar
 				idxSpace := bytes.Index(data[i:], space)
-				varName := data[i+1 : i+idxSpace]
+				varNameByte := data[i+1 : i+idxSpace]
+				varName := removeSpace(string(varNameByte))
 
 				//check if it is an array
 				idxArray := bytes.Index(data[i:], []byte(`array`))
@@ -53,7 +62,7 @@ func findData(access string, data []byte) map[string][]string {
 					varEndIndex := bytes.Index(data[i:], []byte(`;`))
 					varEndIndex = i + varEndIndex
 					index, values := getValues(i, varEndIndex, data)
-					result[string(varName)] = values
+					result[varName] = values
 					i = index
 				}
 			}
@@ -124,6 +133,7 @@ func getValues(i, idxSemiColon int, data []byte) (int, []string) {
 	return finalResult.Index, finalResult.Values
 }
 
+// Read file and return its content.
 func getData(filepath string) []byte {
 	file, err := os.OpenFile(filepath, os.O_RDONLY, 0777)
 	if err != nil {
@@ -145,8 +155,13 @@ func getData(filepath string) []byte {
 	return datas
 }
 
-func checkErr(err error) {
-	if err != nil {
-		log.Fatalln(err)
-	}
+// Remove white space from string the fastest way
+// See here https://stackoverflow.com/questions/32081808/strip-all-whitespace-from-a-string-in-golang
+func removeSpace(str string) string {
+	return strings.Map(func(r rune) rune {
+		if unicode.IsSpace(r) {
+			return -1
+		}
+		return r
+	}, str)
 }
