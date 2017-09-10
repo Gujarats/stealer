@@ -51,3 +51,4 @@ func main() {
 
 ```
 
+You can see the working example in `Sample` folder
