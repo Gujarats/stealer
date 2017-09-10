@@ -9,26 +9,27 @@ import (
 )
 
 // Write all the variables and arrays into code to save them for the later usage
-func Write(path, packageName string, data map[string][]string) error {
+func WriteFile(path, packageName string, data map[string][]string) error {
 	file, err := os.Create(path)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 
 	//close file after finish writing
 	defer func() {
 		if err := file.Close(); err != nil {
-			log.Println(err)
+			log.Fatalln(err)
 		}
 	}()
+
 	// writing package name
-	file.WriteString(packageName + "\n")
+	file.WriteString("package " + packageName + "\n")
 
 	// writing variable
 	for varName, values := range data {
 		varible := variableFormat(varName, values)
-		if _, err := file.WriteString(varible); err != nil {
-			log.Println(err)
+		if _, err := file.WriteString(varible + "\n\n"); err != nil {
+			return err
 		}
 	}
 
