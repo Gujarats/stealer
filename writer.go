@@ -6,6 +6,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 // Write all the variables and arrays into code to save them for the later usage
@@ -23,12 +24,18 @@ func WriteFile(path, packageName string, data map[string][]string) error {
 	}()
 
 	// writing package name
-	file.WriteString("package " + packageName + "\n")
+	file.WriteString("package " + packageName + "\n\n")
 
 	// writing variable
 	for varName, values := range data {
-		varible := variableFormat(varName, values)
-		if _, err := file.WriteString(varible + "\n\n"); err != nil {
+		variable := variableFormat(varName, values)
+		index := strings.Index(variable, "\n")
+		if index > -1 {
+			log.Printf("%+v\n", variable)
+		} else {
+			log.Println("enter not found")
+		}
+		if _, err := file.WriteString(variable + "\n\n"); err != nil {
 			return err
 		}
 	}
@@ -42,16 +49,19 @@ func variableFormat(varName string, values []string) string {
 	dataType := dataTypeFormat(values)
 
 	var variable string
-	variable = varName
-	variable += " := []" + dataType + "{"
+	variable = "var " + varName + " = []" + dataType + "{"
 
 	if dataType == "bool" || dataType == "int" || dataType == "float64 " {
 		for index, value := range values {
 			if index != len(values)-1 {
 				variable += value + ","
+				if index > 0 && index%9 == 0 {
+					variable += "\n"
+				}
 			} else {
 				variable += value
 			}
+
 		}
 		variable += "}"
 	} else {
@@ -59,6 +69,9 @@ func variableFormat(varName string, values []string) string {
 		for index, value := range values {
 			if index != len(values)-1 {
 				variable += "\"" + value + "\","
+				if index > 0 && index%9 == 0 {
+					variable += "\n"
+				}
 			} else {
 				variable += "\"" + value + "\""
 			}
