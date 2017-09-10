@@ -4,14 +4,20 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"reflect"
 	"strconv"
-	"strings"
 )
 
 // Write all the variables and arrays into code to save them for the later usage
-func WriteFile(path, packageName string, data map[string][]string) error {
-	file, err := os.Create(path)
+func WriteFile(pathFile, packageName string, data map[string][]string) error {
+	// creating directory and file
+	dir, _ := path.Split(pathFile)
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	file, err := os.Create(pathFile)
 	if err != nil {
 		return err
 	}
@@ -29,12 +35,6 @@ func WriteFile(path, packageName string, data map[string][]string) error {
 	// writing variable
 	for varName, values := range data {
 		variable := variableFormat(varName, values)
-		index := strings.Index(variable, "\n")
-		if index > -1 {
-			log.Printf("%+v\n", variable)
-		} else {
-			log.Println("enter not found")
-		}
 		if _, err := file.WriteString(variable + "\n\n"); err != nil {
 			return err
 		}

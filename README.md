@@ -27,17 +27,26 @@ You will get them in `map[string][]string` the key is variable name and the arra
 ## Usage
 
 ```go
-import(
-    "github.com/Gujarats/stealer"
+package main
+
+import (
+	"log"
+
+	"github.com/Gujarats/stealer"
 )
 
-//You wil get the result all the variable and its values from php in new path file written in go.
-func main(){
-    steal,err := stealer.Steal("path-php-file")
-    if err != nil {
-             log.Println(err)
-    }
-    steal.Save("test.go","package-name")
+func main() {
+	err, steal := stealer.Steal("Person.php")
+	if err != nil {
+		log.Println(err)
+	}
+
+    // Save it to your path with the package name.
+    // In this case the package name is main
+	err = steal.Save("path/to/your/file/test.go", "main")
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 ```
