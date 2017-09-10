@@ -3,16 +3,43 @@ package stealer
 import (
 	"bytes"
 	"errors"
-	"log"
 	"os"
 	"strings"
 	"sync"
 	"unicode"
 )
 
+// Read file and return its content.
+func ReadFile(filepath string) (error, map[string][]string) {
+	var err error
+	var result map[string][]string
+
+	file, err := os.OpenFile(filepath, os.O_RDONLY, 0777)
+	if err != nil {
+		return err, result
+	}
+
+	fileInfo, err := file.Stat()
+	size := fileInfo.Size()
+	datas := make([]byte, size)
+
+	n, err := file.Read(datas)
+	if err != nil {
+		return err, result
+	}
+	if n == 0 {
+		err = errors.New("Empty selected file")
+		return err, result
+	}
+
+	result = getVariablesValues(datas)
+
+	return err, result
+}
+
 // Getting all the variables values that has prefix (protected,private,public)
 // Return map with the key for variable name and []string for all the values from the variable
-func GetVariablesValues(datas []byte) map[string][]string {
+func getVariablesValues(datas []byte) map[string][]string {
 	result := make(map[string][]string)
 	accessKeys := []string{"private", "protected", "public"}
 	for _, access := range accessKeys {
@@ -24,28 +51,6 @@ func GetVariablesValues(datas []byte) map[string][]string {
 	}
 
 	return result
-}
-
-// Read file and return its content.
-func GetData(filepath string) []byte {
-	file, err := os.OpenFile(filepath, os.O_RDONLY, 0777)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	fileInfo, err := file.Stat()
-	size := fileInfo.Size()
-	datas := make([]byte, size)
-
-	n, err := file.Read(datas)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	if n == 0 {
-		log.Fatalln(errors.New("Empty selected file"))
-	}
-
-	return datas
 }
 
 // Get all the values from a variable with specific access from the data.
@@ -109,12 +114,18 @@ func getValues(i, idxSemiColon int, data []byte) (int, []string) {
 	}
 	values := make(chan storage, len(quotes))
 
+	// checking for single quote to remove escapse
+	escapse := []byte(`\`)
+	singleQuote := []byte(`'`)
+	removeEscape := false
+
 	for _, quote := range quotes {
 		wg.Add(1)
 		go func(i, idxSemiColon int, quote []byte, data []byte) {
 			defer wg.Done()
 			var result []string
 			for {
+				removeEscape = false
 				//getting all the values from array
 				firstSep := bytes.Index(data[i:], quote)
 				if firstSep == -1 {
@@ -130,7 +141,31 @@ func getValues(i, idxSemiColon int, data []byte) (int, []string) {
 				secondSep := bytes.Index(data[i:], quote)
 				i = i + secondSep
 				secondSep = i
+
+				// finding the esacpe "\".
+				if data[secondSep-1] == escapse[0] {
+					// if we escaping single quote
+					if data[secondSep] == singleQuote[0] {
+						// mark to remove escapse
+						removeEscape = true
+					}
+
+					secondSep = bytes.Index(data[i+1:], quote)
+					i = i + secondSep + 1
+					secondSep = i
+				}
+
 				value := data[firstSep:secondSep]
+
+				if removeEscape {
+					var newValue []byte
+					for _, char := range value {
+						if char != escapse[0] {
+							newValue = append(newValue, char)
+						}
+					}
+					value = newValue
+				}
 				if string(value) == "" {
 					break
 				}

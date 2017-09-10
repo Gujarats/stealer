@@ -47,7 +47,7 @@ func TestGetVariablesValue(t *testing.T) {
 	}
 
 	for indexTest, testObject := range testObjects {
-		result := GetVariablesValues(testObject.Datas)
+		result := getVariablesValues(testObject.Datas)
 		for key, _ := range result {
 			exist := isValueExistArray(key, testObject.ExpectedKeys)
 			if !exist {
@@ -184,6 +184,20 @@ func TestGetValues(t *testing.T) {
 			data:     []byte(`private static $myVariable = array('one','two','three','four');`),
 			expected: []string{"one", "two", "three", "four"},
 		},
+
+		// Test 3
+		{
+			index:    20,
+			data:     []byte(`private static $myVariable = array('one\'t','two','three\'okay','four\'hehe');`),
+			expected: []string{"one't", "two", "three'okay", "four'hehe"},
+		},
+
+		// Test 4
+		{
+			index:    20,
+			data:     []byte(`private static $myVariable = array("one\"t","two","three\"okay","four\"hehe","five\"");`),
+			expected: []string{"one\\\"t", "two", "three\\\"okay", "four\\\"hehe", "five\\\""},
+		},
 	}
 
 	for indexTest, testObject := range testObjects {
@@ -233,7 +247,7 @@ mapLoop:
 	return exist
 }
 
-// checking if value a is exit in b array
+// checking if value a is exit in b slice
 func isValueExistArray(a string, b []string) bool {
 	exist := false
 	for _, value := range b {
