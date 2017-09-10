@@ -22,13 +22,23 @@ Get all the variable name and the values from php, for example if you have some 
     private static $last_name_static = array('Abrahams','Santanas','Wijayas');
 ```
 
-you will get them in `map[string][]string` the key is variable name and the array is all the values.
+You will get them in `map[string][]string` the key is variable name and the array is all the values.
 
 ## Usage
 
 ```go
- datas := Get("YOUR PHP PATH")
- result := GetVariablesValues(datas)
- fmt.Printf("resutl = %+v\n",result)
+import(
+    "github.com/Gujarats/stealer"
+)
+
+//You wil get the result all the variable and its values from php in new path file written in go.
+func main(){
+    steal,err := stealer.Steal("path-php-file")
+    if err != nil {
+             log.Println(err)
+    }
+    steal.Save("test.go","package-name")
+}
 
 ```
+
