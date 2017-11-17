@@ -6,7 +6,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/gujarats/stealer"
+	"github.com/Gujarats/stealer"
 )
 
 // convert all files in the given location

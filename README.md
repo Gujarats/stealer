@@ -32,7 +32,7 @@ package main
 import (
 	"log"
 
-	"github.com/gujarats/stealer"
+	"github.com/Gujarats/stealer"
 )
 
 func main() {
