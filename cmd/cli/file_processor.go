@@ -24,7 +24,7 @@ func convertFilesToGo(filesPath []string, filePathSaved string) {
 func convertFileToGO(filePath, filePathSaved string) {
 	err, steal := stealer.Steal(filePath)
 	if err != nil {
-		log.Println("couldnot steal data from given file = %+s and got error = %+v\n", filePath, err)
+		log.Printf("couldnot steal data from given file = %+s and got error = %+v\n", filePath, err)
 		return
 	}
 
