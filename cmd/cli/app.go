@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/Gujarats/logger"
@@ -22,7 +23,7 @@ func main() {
 		cli.StringFlag{
 			Name:        "location",
 			Value:       "",
-			Usage:       "specify files location or directory",
+			Usage:       "specify files location or directory for coverting it to go",
 			Destination: &location,
 		},
 		cli.StringFlag{
@@ -37,8 +38,9 @@ func main() {
 	app.Action = func(c *cli.Context) {
 		if location == "" {
 			cli.ShowAppHelp(c)
-			message := "location got =  \"\" and must not empty"
-			logger.Debug("ERROR :: ", message)
+			message := logger.GetColorFormat(logger.Yellow, logger.Faint, "location got =  \"\" and must not empty")
+			err := logger.GetColorFormat(logger.Cyan, logger.Faint, "Error :: ")
+			fmt.Println(err, message)
 			return
 		}
 
