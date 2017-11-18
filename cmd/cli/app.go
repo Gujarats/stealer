@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
+	"github.com/Gujarats/logger"
+	"github.com/Gujarats/stealer"
 	"github.com/urfave/cli"
 )
 
@@ -19,13 +20,13 @@ func main() {
 	var destination string
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:        "file",
-			Value:       "files/",
+			Name:        "location",
+			Value:       "",
 			Usage:       "specify files location or directory",
 			Destination: &location,
 		},
 		cli.StringFlag{
-			Name:        "folder",
+			Name:        "destination",
 			Value:       "",
 			Usage:       "destination to save all the converted files",
 			Destination: &destination,
@@ -33,29 +34,15 @@ func main() {
 	}
 
 	// default action
-	app.Action = func(c *cli.Context) error {
-		if location == "" && destination == "" {
-			fmt.Println("please specify location and destination")
-			return nil
+	app.Action = func(c *cli.Context) {
+		if location == "" {
+			cli.ShowAppHelp(c)
+			message := "location got =  \"\" and must not empty"
+			logger.Debug("ERROR :: ", message)
+			return
 		}
 
-		fileConverter(location, destination)
-		return nil
-	}
-
-	// Commad to execute
-	app.Commands = []cli.Command{
-
-		//first command
-		{
-			Name:    "read",
-			Aliases: []string{"r"},
-			Usage:   "Show load result",
-			Action: func(c *cli.Context) error {
-
-				return nil
-			},
-		},
+		stealer.Convert(location, destination)
 	}
 
 	app.Run(os.Args)
