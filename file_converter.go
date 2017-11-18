@@ -1,16 +1,12 @@
-package main
+package stealer
 
 import (
-	"io/ioutil"
 	"log"
-	"path"
 	"strings"
-
-	"github.com/Gujarats/stealer"
 )
 
 // convert all files in the given location
-func fileConverter(location, fileSavePath string) {
+func Convert(location, fileSavePath string) {
 	allFiles := getFiles(location)
 	convertFilesToGo(allFiles, fileSavePath)
 }
@@ -22,7 +18,7 @@ func convertFilesToGo(filesPath []string, filePathSaved string) {
 }
 
 func convertFileToGO(filePath, fileSavePath string) {
-	err, steal := stealer.Steal(filePath)
+	err, steal := Steal(filePath)
 	if err != nil {
 		log.Printf("couldnot steal data from given file = %+s and got error = %+v\n", filePath, err)
 		return
@@ -37,6 +33,14 @@ func convertFileToGO(filePath, fileSavePath string) {
 		log.Printf("couldnot save stole data got error = %+s\n", err)
 		return
 	}
+}
+
+// TODO : move this function inside steal.Save() ?
+// get the package name from given filepathLocation
+// eg : my/path/location/file.go the package name will be "location"
+func getPackageName(filePath string) string {
+	splitPath := strings.Split(filePath, "/")
+	return splitPath[len(splitPath)-2]
 }
 
 // convert given path that has file name to Go's file extension
@@ -73,38 +77,4 @@ func isExtentionSuported(extention string) bool {
 	}
 
 	return found
-}
-
-// TODO : move this function inside steal.Save() ?
-// get the package name from given filepathLocation
-// eg : my/path/location/file.go the package name will be "location"
-func getPackageName(filePath string) string {
-	splitPath := strings.Split(filePath, "/")
-	return splitPath[len(splitPath)-2]
-}
-
-//getting all files recursively in the given folder
-func getFiles(directory string) []string {
-	var allFilesPath []string
-	files, err := ioutil.ReadDir(directory)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, file := range files {
-		if file.IsDir() {
-			allFilesResult := getFiles(path.Join(directory, file.Name()))
-			allFilesPath = append(allFilesPath, allFilesResult...)
-		} else {
-			filePath := path.Join(directory, file.Name())
-			allFilesPath = append(allFilesPath, filePath)
-		}
-	}
-
-	return allFilesPath
-}
-
-// check if file is php or not
-func checkFileExtension(filePath string) error {
-	return nil
 }
