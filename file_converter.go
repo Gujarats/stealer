@@ -1,3 +1,6 @@
+// All this function is used for CLI application. Plesae see this cmd/cli dir for the usage info
+// Some of the function print the progress of converting file to Go
+// Only in this place to print the progress not others
 package stealer
 
 import (
@@ -9,28 +12,29 @@ import (
 func Convert(location, fileSavePath string) {
 	allFiles := getFiles(location)
 	convertFilesToGo(allFiles, fileSavePath)
+	printFinish()
 }
 
 func convertFilesToGo(filesPath []string, filePathSaved string) {
 	for _, filePath := range filesPath {
+		printProgress(filePath)
 		convertFileToGO(filePath, filePathSaved)
 	}
 }
 
 func convertFileToGO(filePath, fileSavePath string) {
-	err, steal := Steal(filePath)
+	err, myStealer := Steal(filePath)
 	if err != nil {
-		log.Printf("couldnot steal data from given file = %+s and got error = %+v\n", filePath, err)
+		log.Printf("could not steal data from given file = %+s and got error = %+s\n", filePath, err)
 		return
 	}
 
-	fileName := convertFileName(filePath)
-
 	// Save it to your path with the package name.
+	fileName := convertFileName(filePath)
 	packageName := getPackageName(fileSavePath)
-	err = steal.Save(fileSavePath+fileName, packageName)
+	err = myStealer.Save(fileSavePath+fileName, packageName)
 	if err != nil {
-		log.Printf("couldnot save stole data got error = %+s\n", err)
+		log.Printf("could not save the stole data got error = %+s\n", err)
 		return
 	}
 }
