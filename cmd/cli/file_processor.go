@@ -10,9 +10,9 @@ import (
 )
 
 // convert all files in the given location
-func fileConverter(location, filePathSaved string) {
+func fileConverter(location, fileSavePath string) {
 	allFiles := getFiles(location)
-	convertFilesToGo(allFiles, filePathSaved)
+	convertFilesToGo(allFiles, fileSavePath)
 }
 
 func convertFilesToGo(filesPath []string, filePathSaved string) {
@@ -21,20 +21,58 @@ func convertFilesToGo(filesPath []string, filePathSaved string) {
 	}
 }
 
-func convertFileToGO(filePath, filePathSaved string) {
+func convertFileToGO(filePath, fileSavePath string) {
 	err, steal := stealer.Steal(filePath)
 	if err != nil {
 		log.Printf("couldnot steal data from given file = %+s and got error = %+v\n", filePath, err)
 		return
 	}
 
+	fileName := convertFileName(filePath)
+
 	// Save it to your path with the package name.
-	packageName := getPackageName(filePathSaved)
-	err = steal.Save(filePathSaved, packageName)
+	packageName := getPackageName(fileSavePath)
+	err = steal.Save(fileSavePath+fileName, packageName)
 	if err != nil {
-		log.Println("couldnot save stole data got error = %+v\n", err)
+		log.Printf("couldnot save stole data got error = %+s\n", err)
 		return
 	}
+}
+
+// convert given path that has file name to Go's file extension
+// return empty string if the file is not supported eg : support PHP
+func convertFileName(filePath string) string {
+	filePathSplitted := strings.Split(filePath, "/")
+	if len(filePathSplitted) > 0 {
+		fileName := filePathSplitted[len(filePathSplitted)-1]
+		finalFileName := convertExtension(fileName)
+		return finalFileName
+	}
+
+	return ""
+}
+
+func convertExtension(fileName string) string {
+	fileNameSplitted := strings.Split(fileName, ".")
+
+	if len(fileNameSplitted) > 1 && isExtentionSuported(fileNameSplitted[1]) {
+		result := fileNameSplitted[0] + ".go"
+		return result
+	}
+
+	return ""
+}
+
+func isExtentionSuported(extention string) bool {
+	var supporExtensions = []string{"php"}
+	var found bool
+	for _, supporExtension := range supporExtensions {
+		if supporExtension == extention {
+			found = true
+		}
+	}
+
+	return found
 }
 
 // TODO : move this function inside steal.Save() ?
