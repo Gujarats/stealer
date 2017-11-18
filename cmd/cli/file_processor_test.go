@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-func TestGetFileName(t *testing.T) {
+func TestConvertFileName(t *testing.T) {
 	testCases := []struct {
 		filePath string
 		expected string
