@@ -51,7 +51,7 @@ func variableFormat(varName string, values []string) string {
 	var variable string
 	variable = "var " + varName + " = []" + dataType + "{"
 
-	if dataType == "bool" || dataType == "int" || dataType == "float64 " {
+	if dataType == "bool" || dataType == "int" || dataType == "float64" {
 		for index, value := range values {
 			if index != len(values)-1 {
 				variable += value + ","

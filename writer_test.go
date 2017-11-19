@@ -33,6 +33,14 @@ func TestVaraibleFormat(t *testing.T) {
 
 			expected: "var someVar = []int{1,2,3,4,5,6,7,8,9,10,\n11,12}",
 		},
+
+		// float numbers
+		{
+			varName: "someVar",
+			values:  []string{"12.3", "123.4", "56.43"},
+
+			expected: "var someVar = []float64{12.3,123.4,56.43}",
+		},
 	}
 
 	for _, testObject := range testObjects {
