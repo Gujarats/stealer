@@ -22,7 +22,23 @@ Get all the variable name and the values from php, for example if you have some 
     private static $last_name_static = array('Abrahams','Santanas','Wijayas');
 ```
 
-This library will convert all those variable and its value to GO.
+This library will convert all those variable and its values to Go : 
+
+```go
+package mypackage
+
+var persons_static = []string{"andys", "claras", "johns"}
+
+var last_name_static = []string{"Abrahams", "Santanas", "Wijayas"}
+
+var last_name = []string{"Abraham", "Santana", "Wijaya"}
+
+var animals = []string{"lion", "wolf", "tiger"}
+
+var animals_static = []string{"lions", "wolfs", "tigers"}
+
+var persons = []string{"andy", "clara", "john"}
+```
 
 ## CLI
 You can directly use this using CLI in the `cmd/cli` directory, here is the step installation for Ubuntu : 
