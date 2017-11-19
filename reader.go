@@ -176,7 +176,7 @@ func addValueStore(store *[]string, data []byte, currentIndex int, lastIndex int
 	if currentIndex < lastIndex && lastIndex <= len(data) {
 		value := data[currentIndex:lastIndex]
 		if string(value) != "" {
-			valueString := strings.TrimSpace(string(value))
+			valueString := removeSpace(string(value))
 			*store = append(*store, valueString)
 		}
 	}
