@@ -232,14 +232,12 @@ func getValuesString(i, idxSemiColon int, data []byte, quote []byte) (int, []str
 
 // removeing given char eg : "\" from value
 func removeChar(values []byte, char []byte) []byte {
-	var newValue []byte
-	for _, value := range values {
-		if value != char[0] {
-			newValue = append(newValue, value)
-		}
+	indexChar := bytes.Index(values, char)
+	if indexChar > -1 {
+		return append(values[:indexChar], values[indexChar+1:]...)
 	}
 
-	return newValue
+	return values
 }
 
 // Adding value to store from given data within the currentIndex and lastIndex
