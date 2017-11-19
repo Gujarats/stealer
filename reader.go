@@ -181,24 +181,31 @@ func getValuesString(i, idxSemiColon int, data []byte, quote []byte) (int, []str
 	singleQuote := []byte(`'`)
 
 	for {
-		removeEscape = false
 		//getting all the values from array
-		firstSep := bytes.Index(data[i:], quote)
+		//firstSep := bytes.Index(data[i:], quote)
+		firstSep := findChar(data, quote, i, idxSemiColon)
 		if firstSep == -1 {
 			break
 		}
-		if firstSep+i >= idxSemiColon {
+		if firstSep >= idxSemiColon {
 			i = idxSemiColon + 1
 			break
 		}
-
-		i = i + firstSep + 1
+		i = firstSep + 1
 		firstSep = i
-		secondSep := bytes.Index(data[i:], quote)
-		i = i + secondSep
-		secondSep = i
+
+		secondSep := findChar(data, quote, i, idxSemiColon)
+		if secondSep == -1 {
+			break
+		}
+		if secondSep >= idxSemiColon {
+			i = idxSemiColon + 1
+			break
+		}
+		i = secondSep
 
 		// finding the esacpe "\".
+		//if data[secondSep-1] == escapse[0] {
 		if data[secondSep-1] == escapse[0] {
 			// if we escaping single quote
 			if data[secondSep] == singleQuote[0] {
@@ -206,9 +213,8 @@ func getValuesString(i, idxSemiColon int, data []byte, quote []byte) (int, []str
 				removeEscape = true
 			}
 
-			secondSep = bytes.Index(data[i+1:], quote)
-			i = i + secondSep + 1
-			secondSep = i
+			secondSep = findChar(data, quote, i+1, idxSemiColon)
+			i = secondSep
 		}
 
 		value := data[firstSep:secondSep]
