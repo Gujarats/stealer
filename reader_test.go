@@ -57,7 +57,7 @@ func TestGetVariablesValue(t *testing.T) {
 	}
 }
 
-// Test if we have collected all correct values form each of variable
+//Test if we have collected all correct values form each of variable
 func TestFindData(t *testing.T) {
 	testObjects := []struct {
 		access   string
@@ -70,7 +70,7 @@ func TestFindData(t *testing.T) {
 			data: []byte(`
 
 				public function __construct(){
-					
+
 				}
 
 				private function someFunctionHere(){
@@ -97,7 +97,7 @@ func TestFindData(t *testing.T) {
 			data: []byte(`
 
 				public function __construct(){
-					
+
 				}
 
 				private function someFunctionHere(){
@@ -124,7 +124,7 @@ func TestFindData(t *testing.T) {
 			data: []byte(`
 
 				public function __construct(){
-					
+
 				}
 
 				private function someFunctionHere(){
@@ -143,6 +143,60 @@ func TestFindData(t *testing.T) {
 				private static $last_name_static = array('Abrahams','Santanas','Wijayas');
 			`),
 			expected: []string{"lion", "wolf", "tiger", "lions", "wolfs", "tigers"},
+		},
+
+		//Test 3
+		{
+			access: "public",
+			data: []byte(`
+
+				public function __construct(){
+
+				}
+
+				private function someFunctionHere(){
+					return 1;
+				}
+
+				public function publicFunctionHere(){
+					return 1;
+				}
+
+    			protected static $tollFreeAreaCodes = array(
+        			800, 844, 855, 866, 877, 888
+    			);
+
+				public $myFloatNumber = array(1.233, 123.1283, 11.22);
+
+			`),
+			expected: []string{"1.233", "123.1283", "11.22"},
+		},
+
+		//Test 4
+		{
+			access: "protected",
+			data: []byte(`
+
+				public function __construct(){
+
+				}
+
+				private function someFunctionHere(){
+					return 1;
+				}
+
+				public function publicFunctionHere(){
+					return 1;
+				}
+
+    			protected static $tollFreeAreaCodes = array(
+        			800, 844, 855, 866, 877, 888
+    			);
+
+				public $myFloatNumber = array(1.233, 123.1283, 11.22);
+
+			`),
+			expected: []string{"800", "844", "855", "866", "877", "888"},
 		},
 	}
 
@@ -205,6 +259,108 @@ func TestGetValues(t *testing.T) {
 		ok := isSliceEqual(testObject.expected, actualValues)
 		if !ok {
 			t.Errorf("index test = %v, expected = %+v\n, actual = %+v\n", indexTest, testObject.expected, actualValues)
+		}
+	}
+}
+
+func TestAddValue(t *testing.T) {
+	testObjects := []struct {
+		store        []string
+		data         []byte
+		currentIndex int
+		lastIndex    int
+		expected     []string
+	}{
+		// test 0
+		{
+			store:        []string{"a", "b", "c"},
+			data:         []byte(`hello world bother`),
+			currentIndex: 0,
+			lastIndex:    5,
+			expected:     []string{"a", "b", "c", "hello"},
+		},
+		// test 1
+		{
+			store:        []string{"a", "b", "c"},
+			data:         []byte(`f`),
+			currentIndex: 0,
+			lastIndex:    1,
+			expected:     []string{"a", "b", "c", "f"},
+		},
+		// test 2
+		{
+			store:        []string{"a", "b", "c"},
+			data:         []byte(`f      `),
+			currentIndex: 0,
+			lastIndex:    5,
+			expected:     []string{"a", "b", "c", "f"},
+		},
+		// test 3
+		{
+			store:        []string{"a", "b", "c"},
+			data:         []byte(`12      `),
+			currentIndex: 0,
+			lastIndex:    5,
+			expected:     []string{"a", "b", "c", "12"},
+		},
+	}
+
+	for index, testObject := range testObjects {
+		addValueStore(&testObject.store, testObject.data, testObject.currentIndex, testObject.lastIndex)
+		if !isSliceEqual(testObject.store, testObject.expected) {
+			t.Errorf("at index %+v expected = %+v, result = %+v\n", index, testObject.expected, testObject.store)
+		}
+	}
+}
+
+func TestFindChar(t *testing.T) {
+	testObjects := []struct {
+		data         []byte
+		char         []byte
+		currentIndex int
+		expected     int
+	}{
+		// test 0
+		{
+			data:         []byte(`hello world`),
+			char:         []byte(`o`),
+			currentIndex: 0,
+			expected:     4,
+		},
+		// test 1
+		{
+			data:         []byte(`hello world`),
+			char:         []byte(`d`),
+			currentIndex: 5,
+			expected:     10,
+		},
+		// test 2
+		{
+			data:         []byte(`hello world`),
+			char:         []byte(`d`),
+			currentIndex: 10,
+			expected:     10,
+		},
+		// test 3
+		{
+			data:         []byte(`hello world`),
+			char:         []byte(`d`),
+			currentIndex: 100,
+			expected:     -1,
+		},
+		// test 4
+		{
+			data:         []byte(`hello world`),
+			char:         []byte(`z`),
+			currentIndex: 0,
+			expected:     -1,
+		},
+	}
+
+	for index, testObject := range testObjects {
+		result := findChar(testObject.data, testObject.char, testObject.currentIndex)
+		if result != testObject.expected {
+			t.Errorf("at index = %+v, expected = %+v, result = %+v\n", index, testObject.expected, result)
 		}
 	}
 }
