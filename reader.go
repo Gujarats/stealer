@@ -169,6 +169,68 @@ func getValuesNumber(i, idxSemiColon int, data []byte) (int, []string) {
 	return i, valuesNumber
 }
 
+// Getting all the values from variable inside data
+// start with currentIndex i and end with idxSemiColon
+// the quote would be the quote in php like "\'" and "\""
+func getValuesString(i, idxSemiColon int, data []byte, quote []byte) (int, []string) {
+	var result []string
+	removeEscape := false
+
+	escapse := []byte(`\`)
+	singleQuote := []byte(`'`)
+
+	for {
+		removeEscape = false
+		//getting all the values from array
+		firstSep := bytes.Index(data[i:], quote)
+		if firstSep == -1 {
+			break
+		}
+		if firstSep+i >= idxSemiColon {
+			i = idxSemiColon + 1
+			break
+		}
+
+		i = i + firstSep + 1
+		firstSep = i
+		secondSep := bytes.Index(data[i:], quote)
+		i = i + secondSep
+		secondSep = i
+
+		// finding the esacpe "\".
+		if data[secondSep-1] == escapse[0] {
+			// if we escaping single quote
+			if data[secondSep] == singleQuote[0] {
+				// mark to remove escapse
+				removeEscape = true
+			}
+
+			secondSep = bytes.Index(data[i+1:], quote)
+			i = i + secondSep + 1
+			secondSep = i
+		}
+
+		value := data[firstSep:secondSep]
+
+		if removeEscape {
+			var newValue []byte
+			for _, char := range value {
+				if char != escapse[0] {
+					newValue = append(newValue, char)
+				}
+			}
+			value = newValue
+		}
+		if string(value) == "" {
+			break
+		}
+		result = append(result, string(value))
+		i = i + 2
+	}
+
+	return i, result
+}
+
 // Adding value to store from given data within the currentIndex and lastIndex
 // remove the whitespaces if exist
 // and return the currentIndex which modified from this function
@@ -215,63 +277,16 @@ func getValues(i, idxSemiColon int, data []byte) (int, []string) {
 	values := make(chan storage, len(quotes))
 
 	// checking for single quote to remove escapse
-	escapse := []byte(`\`)
-	singleQuote := []byte(`'`)
-	removeEscape := false
+	//escapse := []byte(`\`)
+	//singleQuote := []byte(`'`)
+	//removeEscape := false
 
 	for _, quote := range quotes {
 		wg.Add(1)
 		go func(i, idxSemiColon int, quote []byte, data []byte) {
 			defer wg.Done()
 			var result []string
-			for {
-				removeEscape = false
-				//getting all the values from array
-				firstSep := bytes.Index(data[i:], quote)
-				if firstSep == -1 {
-					break
-				}
-				if firstSep+i >= idxSemiColon {
-					i = idxSemiColon + 1
-					break
-				}
-
-				i = i + firstSep + 1
-				firstSep = i
-				secondSep := bytes.Index(data[i:], quote)
-				i = i + secondSep
-				secondSep = i
-
-				// finding the esacpe "\".
-				if data[secondSep-1] == escapse[0] {
-					// if we escaping single quote
-					if data[secondSep] == singleQuote[0] {
-						// mark to remove escapse
-						removeEscape = true
-					}
-
-					secondSep = bytes.Index(data[i+1:], quote)
-					i = i + secondSep + 1
-					secondSep = i
-				}
-
-				value := data[firstSep:secondSep]
-
-				if removeEscape {
-					var newValue []byte
-					for _, char := range value {
-						if char != escapse[0] {
-							newValue = append(newValue, char)
-						}
-					}
-					value = newValue
-				}
-				if string(value) == "" {
-					break
-				}
-				result = append(result, string(value))
-				i = i + 2
-			}
+			i, result = getValuesString(i, idxSemiColon, data, quote)
 			objectResult := storage{Index: i, Values: result}
 			values <- objectResult
 		}(i, idxSemiColon, quote.([]byte), data)
