@@ -181,8 +181,6 @@ func getValuesString(i, idxSemiColon int, data []byte, quote []byte) (int, []str
 	singleQuote := []byte(`'`)
 
 	for {
-		//getting all the values from array
-		//firstSep := bytes.Index(data[i:], quote)
 		firstSep := findChar(data, quote, i, idxSemiColon)
 		if firstSep == -1 {
 			break
@@ -204,15 +202,15 @@ func getValuesString(i, idxSemiColon int, data []byte, quote []byte) (int, []str
 		}
 		i = secondSep
 
-		// finding the esacpe "\".
-		//if data[secondSep-1] == escapse[0] {
-		if data[secondSep-1] == escapse[0] {
-			// if we escaping single quote
-			if data[secondSep] == singleQuote[0] {
-				// mark to remove escapse
-				removeEscape = true
-			}
+		// if we escaping single quote
+		if data[secondSep] == singleQuote[0] {
+			// mark to remove escapse
+			removeEscape = true
+		}
 
+		// finding the esacpe "\".
+		// to get the correct secondSep index
+		if data[secondSep-1] == escapse[0] {
 			secondSep = findChar(data, quote, i+1, idxSemiColon)
 			i = secondSep
 		}
@@ -220,13 +218,7 @@ func getValuesString(i, idxSemiColon int, data []byte, quote []byte) (int, []str
 		value := data[firstSep:secondSep]
 
 		if removeEscape {
-			var newValue []byte
-			for _, char := range value {
-				if char != escapse[0] {
-					newValue = append(newValue, char)
-				}
-			}
-			value = newValue
+			value = removeChar(value, escapse)
 		}
 		if string(value) == "" {
 			break
@@ -236,6 +228,18 @@ func getValuesString(i, idxSemiColon int, data []byte, quote []byte) (int, []str
 	}
 
 	return i, result
+}
+
+// removeing given char eg : "\" from value
+func removeChar(values []byte, char []byte) []byte {
+	var newValue []byte
+	for _, value := range values {
+		if value != char[0] {
+			newValue = append(newValue, value)
+		}
+	}
+
+	return newValue
 }
 
 // Adding value to store from given data within the currentIndex and lastIndex
@@ -301,7 +305,6 @@ func getValues(i, idxSemiColon int, data []byte) (int, []string) {
 	var foundStringValue bool
 	for value := range values {
 		if len(value.Values) > 0 {
-			// found values
 			foundStringValue = true
 			finalResult = value
 		}
