@@ -22,9 +22,19 @@ Get all the variable name and the values from php, for example if you have some 
     private static $last_name_static = array('Abrahams','Santanas','Wijayas');
 ```
 
-You will get them in `map[string][]string` the key is variable name and the array is all the values.
+This library will convert all those variable and its value to GO.
 
-## Usage
+## CLI
+You can directly use this using CLI in the `cmd/cli` directory, here is the step installation for Ubuntu : 
+
+```shell
+cd $GOPATH/src/github.com/Gujarats/stealer/cmd/cli/
+go build
+sudo mv cli /usr/local/bin/stealer
+stealer
+```
+## Usage from the source
+Here is some snippet code to get started
 
 ```go
 package main
@@ -50,5 +60,3 @@ func main() {
 }
 
 ```
-
-You can see the working example in `Sample` folder
