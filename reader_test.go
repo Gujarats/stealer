@@ -189,9 +189,7 @@ func TestFindData(t *testing.T) {
 					return 1;
 				}
 
-    			protected static $tollFreeAreaCodes = array(
-        			800, 844, 855, 866, 877, 888
-    			);
+    			protected static $tollFreeAreaCodes = array(800, 844, 855, 866, 877, 888);
 
 				public $myFloatNumber = array(1.233, 123.1283, 11.22);
 
@@ -318,6 +316,7 @@ func TestFindChar(t *testing.T) {
 		data         []byte
 		char         []byte
 		currentIndex int
+		idxSemiColon int
 		expected     int
 	}{
 		// test 0
@@ -325,6 +324,7 @@ func TestFindChar(t *testing.T) {
 			data:         []byte(`hello world`),
 			char:         []byte(`o`),
 			currentIndex: 0,
+			idxSemiColon: 6,
 			expected:     4,
 		},
 		// test 1
@@ -332,20 +332,23 @@ func TestFindChar(t *testing.T) {
 			data:         []byte(`hello world`),
 			char:         []byte(`d`),
 			currentIndex: 5,
-			expected:     10,
+			idxSemiColon: 10,
+			expected:     -1,
 		},
 		// test 2
 		{
 			data:         []byte(`hello world`),
 			char:         []byte(`d`),
 			currentIndex: 10,
-			expected:     10,
+			idxSemiColon: 10,
+			expected:     -1,
 		},
 		// test 3
 		{
 			data:         []byte(`hello world`),
 			char:         []byte(`d`),
 			currentIndex: 100,
+			idxSemiColon: 10,
 			expected:     -1,
 		},
 		// test 4
@@ -353,12 +356,29 @@ func TestFindChar(t *testing.T) {
 			data:         []byte(`hello world`),
 			char:         []byte(`z`),
 			currentIndex: 0,
+			idxSemiColon: 10,
+			expected:     -1,
+		},
+		// test 5
+		{
+			data:         []byte(`hello world`),
+			char:         []byte(`d`),
+			currentIndex: 0,
+			idxSemiColon: 400,
+			expected:     -1,
+		},
+		// test 6
+		{
+			data:         []byte(`protected static $myvar = 10;`),
+			char:         []byte(`;`),
+			currentIndex: 0,
+			idxSemiColon: 400,
 			expected:     -1,
 		},
 	}
 
 	for index, testObject := range testObjects {
-		result := findChar(testObject.data, testObject.char, testObject.currentIndex)
+		result := findChar(testObject.data, testObject.char, testObject.currentIndex, testObject.idxSemiColon)
 		if result != testObject.expected {
 			t.Errorf("at index = %+v, expected = %+v, result = %+v\n", index, testObject.expected, result)
 		}

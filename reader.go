@@ -7,8 +7,6 @@ import (
 	"strings"
 	"sync"
 	"unicode"
-
-	"github.com/Gujarats/logger"
 )
 
 // Read file and return its content.
@@ -129,11 +127,7 @@ func getValuesNumber(i, idxSemiColon int, data []byte) (int, []string) {
 	var commaIndex int
 
 	// finding the open parenthesis `(` character and assign tu current index = i
-	logger.Debug("currentInde = ", i)
-	logger.Debug("len data = ", len(data))
-	logger.Debug("data = ", string(data))
-	logger.Debug("data current Index = ", string(data[i:i+20]))
-	oPindex = findChar(data, oP, i)
+	oPindex = findChar(data, oP, i, idxSemiColon)
 
 	// check oPindex
 	if oPindex > -1 {
@@ -144,12 +138,8 @@ func getValuesNumber(i, idxSemiColon int, data []byte) (int, []string) {
 		return i, valuesNumber
 	}
 
-	logger.Debug("opIndex = ", oPindex)
-	logger.Debug("opIndex data = ", string(data[oPindex]))
-
 	for {
-		commaIndex = findChar(data, comma, i)
-		logger.Debug("commaIndex = ", commaIndex)
+		commaIndex = findChar(data, comma, i, idxSemiColon)
 		if commaIndex >= idxSemiColon {
 			break
 		}
@@ -164,13 +154,12 @@ func getValuesNumber(i, idxSemiColon int, data []byte) (int, []string) {
 			}
 		} else {
 			// find close Parenthesis
-			cPindex = findChar(data, cP, i)
+			cPindex = findChar(data, cP, i, idxSemiColon)
 			if cPindex >= idxSemiColon || cPindex == -1 {
 				break
 			}
 
 			addValueStore(&valuesNumber, data, i, cPindex)
-			logger.Debug("LAST valuesNumber= ", valuesNumber)
 			i = cPindex + 1
 
 		}
@@ -195,11 +184,10 @@ func addValueStore(store *[]string, data []byte, currentIndex int, lastIndex int
 
 // find the char index inside data from the given of currentIndex
 // This currentIndex is to avoid getting previous charIndex
-// return currentIndex and charIndex in sequence
-func findChar(data []byte, char []byte, currentIndex int) int {
+func findChar(data []byte, char []byte, currentIndex, idxSemiColon int) int {
 	charIndex := -1
-	if currentIndex < len(data) {
-		charIndex = bytes.Index(data[currentIndex:], char)
+	if currentIndex < idxSemiColon && currentIndex < len(data) && idxSemiColon < len(data) {
+		charIndex = bytes.Index(data[currentIndex:idxSemiColon], char)
 		if charIndex > -1 {
 			//found char  inside data
 			charIndex = currentIndex + charIndex
