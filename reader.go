@@ -173,9 +173,10 @@ func getValuesNumber(i, idxSemiColon int, data []byte) (int, []string) {
 // start with currentIndex i and end with idxSemiColon
 // the quote would be the quote in php like "\'" and "\""
 func getValuesString(i, idxSemiColon int, data []byte, quote []byte) (int, []string) {
+	// to hold the result
 	var result []string
+	// checking for single quote to remove escapse
 	removeEscape := false
-
 	escapse := []byte(`\`)
 	singleQuote := []byte(`'`)
 
@@ -276,20 +277,15 @@ func getValues(i, idxSemiColon int, data []byte) (int, []string) {
 	quotes := [2]interface{}{[]byte(`"`), []byte(`'`)}
 	values := make(chan storage, len(quotes))
 
-	// checking for single quote to remove escapse
-	//escapse := []byte(`\`)
-	//singleQuote := []byte(`'`)
-	//removeEscape := false
-
 	for _, quote := range quotes {
 		wg.Add(1)
-		go func(i, idxSemiColon int, quote []byte, data []byte) {
+		go func(i, idxSemiColon int, data []byte, quote []byte) {
 			defer wg.Done()
 			var result []string
 			i, result = getValuesString(i, idxSemiColon, data, quote)
 			objectResult := storage{Index: i, Values: result}
 			values <- objectResult
-		}(i, idxSemiColon, quote.([]byte), data)
+		}(i, idxSemiColon, data, quote.([]byte))
 	}
 
 	wg.Wait()
