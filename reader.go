@@ -77,10 +77,10 @@ func findData(access string, data []byte) map[string][]string {
 			} else {
 				// found a variable get variable name
 				dollar := []byte(`$`)
-				space := []byte(`=`)
+				equal := []byte(`=`)
 				idxDollar := bytes.Index(data[i:], dollar)
 				i = i + idxDollar
-				idxSpace := bytes.Index(data[i:], space)
+				idxSpace := bytes.Index(data[i:], equal)
 				varNameByte := data[i+1 : i+idxSpace]
 				varName := removeSpace(string(varNameByte))
 
