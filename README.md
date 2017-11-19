@@ -40,6 +40,14 @@ var animals_static = []string{"lions", "wolfs", "tigers"}
 var persons = []string{"andy", "clara", "john"}
 ```
 
+## Date type supported
+Currently this library support for these data types : 
+
+- stirng
+- int
+- float
+- bool
+
 ## CLI
 You can directly use this using CLI in the `cmd/cli` directory, here is the step installation for Ubuntu : 
 
